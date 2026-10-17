@@ -1,0 +1,12 @@
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfvars
+**/*.tfplan
+**/*.qcow2
+**/*.gns3project
+**/*.pem
+**/*.key
+**/*.gpg
+**/.env
+**/logs/

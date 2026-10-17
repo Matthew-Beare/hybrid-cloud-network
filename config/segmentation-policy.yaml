@@ -1,0 +1,15 @@
+# Declarative description for design review; not executable router config.
+site:
+  vlans:
+    - { name: restricted, vid: 10, subnet: 192.168.10.0/24 }
+    - { name: admin, vid: 20, subnet: 192.168.20.0/24 }
+    - { name: services, vid: 30, subnet: 192.168.30.0/24 }
+  cloud_network: 10.2.0.0/16
+policies:
+  - { source: admin, destination: restricted, decision: allow }
+  - { source: admin, destination: services, decision: allow }
+  - { source: admin, destination: cloud_network, decision: allow }
+  - { source: restricted, destination: admin, decision: deny }
+  - { source: restricted, destination: cloud_network, decision: deny }
+  - { source: restricted, destination: services, decision: deny }
+  - { source: any, destination: any, decision: deny_by_default }
