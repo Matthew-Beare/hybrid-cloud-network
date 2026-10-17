@@ -2,7 +2,7 @@
 
 I wanted a small network where an admin VLAN could reach an application in AWS without opening that application up to every machine on the LAN. The idea is to separate the local VLANs, route through VyOS, and use WireGuard between the site and AWS.
 
-This came from the hybrid networking work I did for my WGU Cloud and Network Engineering capstone. This repo is a cleaned-up **design and AWS starting point**, not a copy of my assessed work and not a working VPN you can deploy as-is. I used AI assistance while organizing the public version.
+This is a lab network design based on coursework in routing, segmentation, and cloud infrastructure. The repo contains a design and some AWS provisioning code, not a working site-to-cloud VPN. I used AI assistance when reworking the public example.
 
 ## Network layout
 
@@ -47,4 +47,4 @@ Check the plan and AWS charges before applying anything. This code doesn't confi
 
 I still need to build the tunnel and routing, add the firewall rules, and run the tests in the verification matrix. I'm especially interested in showing that blocked traffic **stays blocked**, not just that the allowed traffic works.
 
-This public version hasn't been deployed end to end. It contains no live VPN keys, virtual machine images, or WGU submission files.
+This public version hasn't been deployed end to end. It contains no live VPN keys, virtual machine images, or  submission files.
