@@ -32,3 +32,4 @@ variable "admin_public_cidr" {
     condition     = can(cidrnetmask(var.admin_public_cidr)) && can(regex("/32$", var.admin_public_cidr))
     error_message = "SSH administration must be limited to one public IPv4 /32 address."
   }
+}
