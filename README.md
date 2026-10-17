@@ -1,47 +1,50 @@
-# Hybrid Cloud Network: Segmentation and Site-to-Cloud Routing
+# Hybrid Cloud Network
 
-A lab network design built around ExtremeXOS switching, a VyOS router/firewall, and a WireGuard connection to AWS. It documents the routing and security decisions behind connecting separate local networks to a cloud application without giving every client unrestricted reachability.
+I wanted a small network where an admin VLAN could reach an application in AWS without opening that application up to every machine on the LAN. The idea is to separate the local VLANs, route through VyOS, and use WireGuard between the site and AWS.
+
+This came from the hybrid networking work I did for my WGU Cloud and Network Engineering capstone. This repo is a cleaned-up **design and AWS starting point**, not a copy of my assessed work and not a working VPN you can deploy as-is. I used AI assistance while organizing the public version.
 
 ## Network layout
 
 ```mermaid
 flowchart LR
-  A[Admin VLAN 20] --> SW[EXOS switching]
+  A[Admin VLAN 20] --> SW[EXOS switches]
   U[Restricted VLAN 10] --> SW
   S[Services VLAN 30] --> SW
-  SW --> V[VyOS firewall / routing]
-  V <-->|WireGuard| G[AWS VPN gateway]
-  G --> P[Private EC2 application]
+  SW --> V[VyOS router and firewall]
+  V <-->|Planned WireGuard link| G[AWS gateway EC2]
+  G --> P[Private application EC2]
 ```
 
-The admin segment can reach selected services and cloud resources. The restricted segment cannot initiate connections to the admin or cloud segments. Firewall rules, switch tagging, AWS security groups and both directions of routing must agree; a WireGuard handshake alone does not prove the application is reachable.
+Admin machines should reach only the services they're supposed to. Restricted clients shouldn't be able to initiate connections to admin hosts or the cloud application. The application EC2 instance has no public IP.
 
-## What's here
+Getting a WireGuard handshake is only step one. The VPC and VyOS need the right routes and firewall rules in both directions, or the application still won't work.
 
-- `docs/architecture.md`: routing and segmentation decisions
-- `docs/security-controls.md`: proposed trust boundaries
-- `docs/verification-matrix.md`: positive and negative connectivity tests
-- `config/segmentation-policy.yaml`: human-readable policy reference, **not** a VyOS config generator
-- `terraform/`: parameterized AWS EC2 and security-group scaffold
+## What's included
 
-The Terraform scaffold is deliberately incomplete. It does **not** establish a working VPN, create VPC route tables, configure WireGuard keys, or bootstrap the EC2 instances. Those require separate implementation and testing.
+- `docs/architecture.md`: routing decisions and work still needed
+- `docs/security-controls.md`: intended access rules
+- `docs/verification-matrix.md`: traffic that should **pass and fail**
+- `config/segmentation-policy.yaml`: a readable policy sketch, not router configuration
+- `terraform/`: AWS gateway/application instances and security groups
 
-## Review the cloud portion
+The Terraform expects an existing VPC with separate public and private subnets. Public management and WireGuard source IPs are restricted to specific `/32` addresses.
+
+## Review the AWS side
 
 ```bash
 cd terraform
 cp terraform.tfvars.example terraform.tfvars
-# Supply IDs and allowed source networks for a disposable AWS lab.
+# Supply values for a disposable AWS account.
 terraform init
-terraform fmt -check
 terraform validate
 terraform plan
 ```
 
-Running `terraform apply` would create billable cloud resources. Nothing in this public repository has been applied or integration-tested.
+Check the plan and AWS charges before applying anything. This code doesn't configure WireGuard, create all the needed routes, set up VyOS, or install the application.
 
-## What would prove it works
+## What would finish it
 
-The verification matrix includes tests for intended traffic **and** blocked traffic. A successful ping proves less than people think: test application reachability, return routes, firewall denies, and whether the private instance is accidentally accessible from the internet.
+I still need to build the tunnel and routing, add the firewall rules, and run the tests in the verification matrix. I'm especially interested in showing that blocked traffic **stays blocked**, not just that the allowed traffic works.
 
-This public design excludes the original appliance images, historical screenshots, live cloud metadata, WireGuard keys, and password hashes. Do not treat it as a ready-to-deploy VPN appliance.
+This public version hasn't been deployed end to end. It contains no live VPN keys, virtual machine images, or WGU submission files.
