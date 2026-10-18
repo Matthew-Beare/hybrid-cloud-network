@@ -1,12 +1,32 @@
+# Terraform state and private values
 **/.terraform/
 **/*.tfstate
 **/*.tfstate.*
-**/terraform.tfvars
+**/*.tfvars
+**/*.auto.tfvars*
 **/*.tfplan
+**/crash.log
+
+# Lab images, backups, and exports
 **/*.qcow2
 **/*.gns3project
+**/*.tar.gz
+**/*.zip
+**/logs/
+
+# Credentials and local settings
 **/*.pem
 **/*.key
+**/*.p12
+**/*.pfx
 **/*.gpg
 **/.env
-**/logs/
+**/.env.*
+**/*.env
+**/*.env.*
+**/.vault_pass*
+
+# Development files
+__pycache__/
+*.py[cod]
+.DS_Store
