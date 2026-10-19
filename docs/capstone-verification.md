@@ -1,4 +1,4 @@
-# Completed capstone: implementation and verification
+# Hybrid Cloud Network: historical implementation and verification
 
 **Environment:** September 2026, GNS3 with ExtremeXOS SW1/SW2, VyOS R1, client/service nodes, and live AWS EC2 instances. This is historic lab execution evidence, **not** a representation of currently deployed infrastructure.
 
@@ -10,8 +10,8 @@ The original functionality report records eight test cases. The following is a c
 | 02 - Local addressing | Admin/Clinical DHCP and Services static IPv4/default route | PASS: expected leases and service addressing; server reached its gateway |
 | 03 - Local firewall | Admin permitted to local service; Clinical denied | PASS: 5 authorized replies; denied attempts timed out; VyOS forward default-drop configuration recorded |
 | 04 - Cloud segmentation | Separate EC2 VPN/application subnets; VPC local routing | PASS: observed different AWS subnet assignments and route table |
-| 05 - Cloud addressing | Cloud instance addressing and relevant network attributes | PASS according to the original functionality report |
-| 06 - Cloud security | Permitted application traffic and restricted management access | PASS according to the original functionality report |
+| 05 - Cloud addressing | Cloud instance addressing and relevant network attributes | PASS in the original functionality report. An inventory showing EC2-APP-1 at 10.2.20.153 matches the tested target; a separately captured inventory shows 10.2.20.26 and must not be treated as simultaneous instance state. |
+| 06 - Cloud security | Cloud ingress permissions and application response | Original VPN gateway security-group screenshot confirms TCP/22 and UDP/51820 inbound rules, both restricted to a /32 source. A gateway-originated HTTP request to 10.2.20.153 returned HTTP 200. Neither observation proves an Admin-originated HTTP request. |
 | 07 - Custom WireGuard VPN | Admin → AWS application reachability through VPN, handshake/traffic, AWS return route | PASS: 5 application replies, recent handshake and packet counters, active return route |
 | 08 - Hybrid security | Admin → AWS allowed, Clinical → AWS blocked | PASS: 5 Admin replies, restricted Clinical attempts timed out, VyOS firewall default-drop and explicit allow verified |
 
@@ -22,7 +22,10 @@ The original functionality report records eight test cases. The following is a c
 - `evidence/admin-clinical-allowed.png`, `evidence/clinical-admin-blocked.png`: positive and negative inter-VLAN tests.
 - `evidence/vyos-firewall.png`: VyOS firewall policy output used to explain expected allowed and denied traffic.
 - `evidence/wireguard-handshake.png`: observed tunnel interface and recent handshake with traffic counters; peer public keys and external endpoint have been visibly redacted.
-- `evidence/admin-aws-allowed.png`, `evidence/clinical-aws-blocked.png`: end-to-end successful and denied access to the AWS application.
+- `evidence/admin-aws-allowed.png`, `evidence/clinical-aws-blocked.png`: allowed and timed-out site-originated **ICMP** probes to the application IP, not an Admin-originated HTTP transaction.
+- `evidence/curated/aws-application-http-200.png`: actual AWS-gateway-to-application `curl` with HTTP 200 response and body.
+- `evidence/curated/aws-vpn-security-group.png`: cropped EC2 ingress rules for SSH and WireGuard with historic source identity/address redacted.
+- `evidence/curated/aws-app-153-inventory.png`: application-IP inventory matching the historic ping and HTTP tests; another archived inventory shows a different captured application address.
 
 Screenshots are cropped from the original lab output. They are not synthetic reproductions. Original desktop chrome, identifiers, and private tunnel endpoint are excluded; relevant commands/results remain. Lab RFC1918 addressing appears where necessary to demonstrate routing. Do not infer those addresses belong to a production home or employer network.
 

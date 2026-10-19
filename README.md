@@ -1,10 +1,10 @@
-# Hybrid Cloud Network | Tested EXOS, VyOS, WireGuard & AWS Capstone
+# Hybrid Cloud Network | Tested EXOS, VyOS, WireGuard & AWS
 
 **ExtremeXOS switching · 802.1Q VLANs · VyOS routing/firewall · DHCP · WireGuard · AWS EC2 · Terraform**
 
-I built and tested a segmented network in September 2026 using **two ExtremeXOS switches in GNS3, a VyOS router, separate client/service VLANs, and a WireGuard site-to-cloud tunnel connected to real AWS EC2 instances**. The capstone included eight verification groups covering address assignment, switching, routing, firewall behavior, cloud network state and VPN reachability.
+I built and tested a segmented network in September 2026 using **two ExtremeXOS switches in GNS3, a VyOS router, separate client/service VLANs, and a WireGuard site-to-cloud tunnel connected to real AWS EC2 instances**. The project included eight verification groups covering address assignment, switching, routing, firewall behavior, cloud network state and VPN reachability.
 
-**The original capstone was implemented and tested.** The `terraform/` directory is a *separate, generalized portfolio example* of part of the AWS infrastructure, not an export of the original live deployment or a one-command reproduction of the VPN.
+**The original hybrid network was implemented and tested.** The `terraform/` directory is a *separate, generalized portfolio example* of part of the AWS infrastructure, not an export of the original live deployment or a one-command reproduction of the VPN.
 
 ## The network at a glance
 
@@ -31,7 +31,7 @@ flowchart LR
 | Clinical → AWS private application | Denied | **Timed out**, consistent with firewall policy |
 | AWS return routing | Routes to site VLAN networks | **Verified** in EC2 route-table output |
 
-The screenshot evidence below comes from the original capstone test environment, not a newly deployed AWS account.
+The screenshot evidence below comes from the original September 2026 test environment, not a newly deployed AWS account.
 
 ## 1. Switching and inter-VLAN routing
 
@@ -71,6 +71,18 @@ The site router established a WireGuard handshake with the AWS gateway, and traf
 | --- | --- |
 | ![Admin to AWS reachability succeeds](docs/evidence/admin-aws-allowed.png) | ![Clinical to AWS reachability times out](docs/evidence/clinical-aws-blocked.png) |
 
+**Application-layer test from the AWS VPN gateway**
+
+From the AWS VPN gateway instance, `curl -i http://10.2.20.153` returned **`HTTP/1.0 200 OK`** and the test application's response body. This proves gateway-to-application HTTP connectivity. **The separate Admin-to-AWS screenshot proves ICMP reachability, not an HTTP request from the Admin client.**
+
+![Historical HTTP 200 response from AWS VPN gateway to application EC2](docs/evidence/curated/aws-application-http-200.png)
+
+**AWS VPN gateway security-group rules**
+
+Original EC2 security-group output shows inbound TCP/22 (SSH) and UDP/51820 (WireGuard), each restricted to an explicit IPv4 `/32` source. The historic source address and school-specific identifiers have been permanently obscured in the cropped image. These are observed lab settings, **not** a security test of a currently deployed gateway.
+
+![Historical AWS VPN security group ingress policy with source identifiers redacted](docs/evidence/curated/aws-vpn-security-group.png)
+
 **AWS return routes (historic cloud resource IDs masked)**
 
 ![AWS route table showing active return routes for three lab subnets](docs/evidence/curated/aws-return-routes.png)
@@ -94,6 +106,12 @@ The original test environment assigned Admin and Clinical clients separate DHCP 
 
 ![Linux services host addressing and successful gateway ping](docs/evidence/curated/services-static-route.png)
 
+**Historical application-IP reconciliation**
+
+Two retained AWS inventories reflect different captured lab states: the previously published inventory shows the application at `10.2.20.26`; another original inventory shows `EC2-APP-1` at `10.2.20.153`, matching the later Admin ping target and the AWS-gateway HTTP test. They should **not** be presented as simultaneous addresses of one instance.
+
+![Historical EC2-APP-1 inventory showing application address 10.2.20.153](docs/evidence/curated/aws-app-153-inventory.png)
+
 **AWS EC2 instance state (historic public IP and subnet IDs redacted)**
 
 ![VPN and private application EC2 instances](docs/evidence/curated/aws-vpc-segmentation.png)
@@ -102,10 +120,10 @@ The original test environment assigned Admin and Clinical clients separate DHCP 
 
 ## Verification report and configuration
 
-The original implementation was assessed through **eight capstone test groups**, not merely eight screenshots. The published evidence is a curated subset of the complete historical submission. For the original test scope and limitations see [the capstone verification report](docs/capstone-verification.md).
+The original implementation was assessed through **eight verification groups**, not merely eight screenshots. The published evidence is a curated subset of the complete historical submission. For the original test scope and limitations see [the project verification report](docs/capstone-verification.md).
 
 - [Network architecture and implementation boundary](docs/architecture.md)
-- [Capstone test results](docs/capstone-verification.md)
+- [Historical network test results](docs/capstone-verification.md)
 - [EXOS SW1 config excerpt](docs/configs/sw1-exos-vlans.txt) and [SW2 config excerpt](docs/configs/sw2-exos-vlans.txt)
 - [Security and publication boundaries](docs/security-controls.md)
 - [Future generalized-deployment verification matrix](docs/verification-matrix.md)
@@ -116,7 +134,7 @@ The evidence images are **cropped from historical screenshots**, not synthetic t
 
 ## Separate Terraform example (not the original deployment)
 
-The checked-in `terraform/` folder provisions illustrative EC2 instances and security groups within an **existing** AWS VPC and subnets. It does **not** install WireGuard, configure EXOS or VyOS, create the needed network routes, configure the private application, or recreate the full capstone.
+The checked-in `terraform/` folder provisions illustrative EC2 instances and security groups within an **existing** AWS VPC and subnets. It does **not** install WireGuard, configure EXOS or VyOS, create the needed network routes, configure the private application, or recreate the complete tested network.
 
 ```bash
 cd terraform
@@ -131,4 +149,4 @@ Review the plan and AWS costs before applying anything. GitHub Actions validates
 
 ## Engineering notes
 
-During the capstone I investigated a missing VyOS default route, a mismatched WireGuard peer public key, and DHCP initialization issues. I used AI assistance while sanitizing and writing the public documentation and reusable infrastructure example. The screenshots, switch configuration excerpts and original lab test findings are clearly distinguished from the subsequently revised code.
+During implementation I investigated a missing VyOS default route, a mismatched WireGuard peer public key, and DHCP initialization issues. I used AI assistance while sanitizing and writing the public documentation and reusable infrastructure example. The screenshots, switch configuration excerpts and original lab test findings are clearly distinguished from the subsequently revised code.
