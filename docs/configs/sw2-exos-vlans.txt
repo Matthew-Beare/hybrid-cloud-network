@@ -1,0 +1,13 @@
+# Excerpt from completed capstone EXOS lab; VLAN and tagged/untagged port configuration only.
+create vlan "ADMIN"
+configure vlan ADMIN tag 20
+create vlan "CLINICAL"
+configure vlan CLINICAL tag 10
+create vlan "SERVICES"
+configure vlan SERVICES tag 30
+configure vlan ADMIN add ports 1 tagged
+configure vlan CLINICAL add ports 1 tagged
+configure vlan CLINICAL add ports 2 untagged
+configure vlan Default add ports 4-12 untagged
+configure vlan SERVICES add ports 1 tagged
+configure vlan SERVICES add ports 3 untagged

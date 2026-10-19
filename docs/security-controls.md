@@ -1,14 +1,7 @@
-# Security boundaries
+# Security boundaries: capstone evidence and public example
 
-| Boundary | Intended control |
-| --- | --- |
-| Restricted VLAN to admin and cloud | Deny new connections |
-| Admin VLAN to required resources | Narrow, documented allow rules |
-| Internet to AWS VPN node | UDP 51820 only from the configured peer source |
-| Internet to SSH management | Port 22 only from an explicitly approved CIDR |
-| Internet to private application | No direct public addressing |
-| VPN gateway to application | Security-group-restricted access and routed return traffic |
+The original September 2026 capstone demonstrated EXOS 802.1Q segmentation, VyOS firewall forwarding controls, a WireGuard tunnel to AWS, and allowed/denied paths. See the [historical capstone test record](capstone-verification.md) for evidence and scope. It does **not** establish that an equivalent deployment remains operational.
 
-All rules are design requirements until they are applied and tested on the actual router, switches and AWS networking. Stateful return traffic and established/related filtering depend on the platform.
+The public `config/segmentation-policy.yaml` is an **illustrative human-readable design**, not applied switch or router configuration. The public `terraform/` example uses scoped ingress rules for the WireGuard/SSH gateway and keeps the application EC2 instance without a public IP. Terraform validation is not proof of correct runtime routing or isolation. The public example requires additional deployment and testing before any security claim is justified.
 
-Keys, live cloud resource IDs, device passwords, private disk images and original lab captures are excluded from this repository.
+Do not publish cloud account IDs, live peer public endpoints, WireGuard private keys, administrator credentials, uncropped VM desktops, production network inventories, or credential-containing Terraform state files. The cropped original evidence intentionally omits or blacks out identifying peer information while retaining the observed handshake, traffic and VLAN results.

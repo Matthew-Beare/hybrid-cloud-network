@@ -1,25 +1,18 @@
-# Routing and network design
+# Hybrid Cloud Network architecture
 
-## Site VLANs
+## Completed original capstone (September 2026)
 
-- VLAN 10: restricted clients
-- VLAN 20: administrative hosts
-- VLAN 30: shared services
+The original implementation combined two ExtremeXOS switches in GNS3, VyOS inter-VLAN routing and firewall controls, and a WireGuard site-to-AWS tunnel using actual EC2 instances. The clinical, admin and services segments were VLAN 10, VLAN 20 and VLAN 30 respectively. The evidence-backed topology is summarized in the root README and [capstone verification](capstone-verification.md).
 
-Switch access ports and tagged uplinks must be explicitly mapped. VyOS handles inter-VLAN routing and filtering. The example keeps switching and policy enforcement separate; adding a dedicated management VLAN would be the next hardening step.
+- EXOS switching: captured VLAN/802.1Q configuration and switch port membership
+- VyOS: DHCP, routing, forwarding policy, and WireGuard termination
+- AWS: VPN/application EC2 nodes in separate subnets and an observed return route
+- Positive and negative controls: admin traffic permitted, clinical-origin cloud traffic denied
 
-## Cloud side
+The original capstone was verified at the time; it is not claimed to be running today. The published cropped screenshots and the SW1/SW2 configuration excerpts document this historical implementation.
 
-The proposed WireGuard peer runs on a gateway EC2 instance. A separate application instance sits in a private subnet. Both site and AWS route tables need the remote networks; return paths are just as important as outbound paths. The gateway also needs forwarding rules and `source_dest_check = false`.
+## Standalone Terraform example in this repository
 
-Security groups enforce AWS-side source filtering. The gateway's SSH management port should only accept known management IPs. Never open the private application to the internet to work around missing routes.
+The tracked `terraform/` example is **not an export of the implemented capstone**. It provisions sample EC2 instances/security groups using an existing VPC, public/private subnet IDs and approved narrow source CIDRs. It deliberately excludes the original tunnel keys, endpoint, cloud account metadata, appliance images and active infrastructure state.
 
-## Implementation still required
-
-- WireGuard setup, key distribution and rotation
-- Cloud-init or Ansible bootstrap of the VPN and application nodes
-- VPC route-table entries and on-prem route policy
-- Firewall rules, switch trunk configuration and configuration backups
-- Tested tunnel recovery, logging, negative-path checks and infrastructure teardown
-
-The checked-in Terraform covers some EC2 and security-group resources, not the end-to-end connection.
+To make the generalized Terraform example a complete working site-to-cloud connection, an operator would still need to create routes, configure VyOS and WireGuard peers and forwarding, bootstrap OS/application services, and test positive and negative paths. That work is **not covered by its static Terraform CI job**. See [verification matrix](verification-matrix.md).

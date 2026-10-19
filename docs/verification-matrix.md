@@ -1,16 +1,18 @@
-# Connectivity checks
+# Network verification: recorded capstone versus future example
 
-Run these tests after the switches, VyOS routing policy and AWS environment have actually been configured. **These are expected results, not recorded test passes.**
+The historical capstone **was implemented and tested in September 2026**. Eight test cases and their reported observations are summarized in [capstone-verification.md](capstone-verification.md), with representative cropped original screenshots in `docs/evidence/`.
 
-| Source | Destination | Expected |
+The matrix below applies **only if someone independently deploys the generalized `terraform/` example and completes its currently missing WireGuard/VyOS/router bootstrap**. These are **expected future outcomes, not new recorded test passes**.
+
+| Source | Destination | Expected result for future generalized deployment |
 | --- | --- | --- |
-| Admin VLAN | Allowed service ports | Connect |
-| Restricted VLAN | Admin hosts | Deny |
-| Restricted VLAN | Private cloud application | Deny |
-| Admin VLAN | Private cloud application | Connect over tunnel |
-| Internet | Private application | Deny |
-| VPN gateway | Application management SSH | Connect if authorized |
-| AWS application | Approved site return path | Route correctly |
-| Site WireGuard peer | AWS WireGuard peer | Handshake and route test |
+| Admin VLAN | Approved local service ports | Connect |
+| Restricted VLAN | Administrative hosts | Deny |
+| Restricted VLAN | Private AWS application | Deny |
+| Admin VLAN | Private AWS application | Connect through tunnel |
+| Internet | Private application EC2 | Deny |
+| Authorized VPN gateway | Application management SSH | Connect |
+| AWS application | Approved site return path | Correct reverse route |
+| Site WireGuard peer | AWS peer | Valid handshake and working bidirectional routing |
 
-For each test, record source/destination, exact protocol and port, CLI or command used, expected and observed result, and timestamp. Sanitize evidence before it goes into public version control.
+For a future deployment record source/destination, port, exact command, expected and observed result, UTC timestamp, and a sanitized screenshot or capture. A VPN handshake alone never proves end-to-end reachability.
